@@ -10,7 +10,7 @@ class Main:
 
     def retrieve_data_from_url(url):
         """
-        retrieve_data_from_url is a Webscraping function to retrieve relevant data from the given url
+        retrieve_data_from_url is a Webscraping method to retrieve relevant data from the given url
 
         :param url: References the url where data is gonna be retrieved from
         :return: Dictionary with the entries retrieved from the url where the title words are the key and the associated list of entries are the value
