@@ -3,6 +3,7 @@
 from bs4 import BeautifulSoup
 import requests
 from entry import Entry
+import functools
 
 # This variable is just a defensive measure in case the website is in some way protected against scraping (it does not work everytime, but it's something)
 headers = {
@@ -19,7 +20,8 @@ req = requests.get(url, headers)
 # Creating the HTML DOM in the variable soup
 soup = BeautifulSoup(req.content, 'html.parser')
 
-# print(soup.prettify())
+# Dictionary to store the entries retrieved
+entries = {}
 
 links = soup.find_all('tr', class_="athing")
 for link in links:
@@ -43,6 +45,8 @@ for link in links:
         # Sometimes the last link is something not related to the comments, thats why I check if it contains the comments string
         if("\xa0comments" in last_subtext_a_tag):
             comments_ = int(last_subtext_a_tag.split("\xa0comments")[0])
+        else:
+            comments_ = 0
     except AttributeError:
         comments_ = 0
 
@@ -52,8 +56,56 @@ for link in links:
     # I get the title by looking for the a tag with the "storylink" class
     title_ = link.find('a', class_="storylink").get_text()
 
+    title_length = len(title_.split())
+
     # Instantiate the Entry class with the values retrieved
     entry = Entry(title=title_, num_order=num_order_,
                   comments=comments_, points=points_)
 
-    print(entry)
+    # I store the entries in a dictionary where the keys are the length of the title and the values are the Entries
+    # The reason for doing it this way is that the filtering will be optimized if the keys are directly the length of the titles
+
+    # Inserting the Entries into the Dictionary.
+    # If the length of the title has not already been seen before, we create the new list. Otherwise, we append the new Entry
+    if (title_length in entries):
+        entries[title_length].append(entry)
+    else:
+        entries[title_length] = [entry]
+
+# for i in entries:
+#     print(i)
+#     for k in entries[i]:
+#         print(k)
+
+sorted_by_comments = []
+sorted_by_points = []
+
+
+def sort_by_comments(item):
+    """Key for comparing items when sorted"""
+    return item.comments
+
+
+def sort_by_points(item):
+    """Key for comparing items when sorted"""
+    return item.points
+
+
+# PROCEED WITH FIRST FILTER
+# "Filter all previous entries with more than five words in the title ordered by the amount of comments first"
+for key in entries:
+    if key > 5:
+        sorted_by_comments += entries[key]
+
+sorted_by_comments = sorted(sorted_by_comments, key=sort_by_comments)
+
+# PROCEED WITH SECOND FILTER
+# "Filter all previous entries with less than or equal to five words in the title ordered by points."
+for key in entries:
+    if key <= 5:
+        sorted_by_points += entries[key]
+
+sorted_by_points = sorted(sorted_by_points, key=sort_by_points)
+
+for i in sorted_by_points:
+    print(i)
