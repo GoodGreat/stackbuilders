@@ -8,13 +8,16 @@ from urllib.parse import urlparse
 
 class Main:
 
-    def retrieve_data_from_url(url):
+    def retrieve_data_from_url(self, url):
         """
         retrieve_data_from_url is a Webscraping method to retrieve relevant data from the given url
 
         :param url: References the url where data is gonna be retrieved from
         :return: Dictionary with the entries retrieved from the url where the title words are the key and the associated list of entries are the value
         """
+        # Dictionary to store the entries retrieved
+        entries = {}
+
         # This variable is just a defensive measure in case the website is in some way protected against scraping (it does not work everytime, but it's something)
         headers = {
             'Access-Control-Allow-Origin': '*',
@@ -23,17 +26,16 @@ class Main:
             'Access-Control-Max-Age': '3600',
             'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
         }
-        if (urlparse.urlparse(url)):
+
+        parsed_url = urlparse(url)
+        if (parsed_url.scheme != '' and parsed_url.netloc != ''):
             url_ = url
         else:
-            return None
+            return entries
         req = requests.get(url_, headers)
 
         # Creating the HTML DOM in the variable soup
         soup = BeautifulSoup(req.content, 'html.parser')
-
-        # Dictionary to store the entries retrieved
-        entries = {}
 
         links = soup.find_all('tr', class_="athing")
         for link in links:
@@ -86,7 +88,7 @@ class Main:
             else:
                 entries[title_length] = [entry]
 
-            return entries
+        return entries
 
     # PROCEED WITH FIRST FILTER
     # "Filter all previous entries with more than five words in the title ordered by the amount of comments first"
