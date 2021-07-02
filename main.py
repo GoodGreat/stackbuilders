@@ -103,6 +103,10 @@ class Main:
         :param title_words: References the number of words in the title
         :return: Sorted list of entries that pass the filter 
         """
+        # I assume there could be a case where there is no title, but not negative words
+        if title_words < 0:
+            return []
+
         sorted_by_comments = []
 
         for key in list_:
@@ -127,6 +131,10 @@ class Main:
         :param title_words: References the number of words in the title
         :return: Sorted list of entries that pass the filter 
         """
+        # I assume there could be a case where there is no title, but not negative words
+        if title_words <= 0:
+            return []
+
         sorted_by_points = []
 
         for key in list_:
@@ -137,7 +145,7 @@ class Main:
 
         return sorted_by_points
 
-    def sort_by_comments(item):
+    def sort_by_comments(self, item):
         """
         sort_by_comments defines the "comments" field of Entry class as the sorting key
 
@@ -146,7 +154,7 @@ class Main:
         """
         return item.comments
 
-    def sort_by_points(item):
+    def sort_by_points(self, item):
         """
         sort_by_comments defines the "points" field of Entry class as the sorting key
 
